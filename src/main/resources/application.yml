@@ -4,3 +4,11 @@ server:
 spring:
   thymeleaf:
     mode: LEGACYHTML5
+  datasource:
+    url: jdbc:postgresql://localhost:5432/finance
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: create-drop # This tells Hibernate to recreate the database on startup.
+#      ddl-auto: validate # in testing or production databases

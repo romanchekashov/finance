@@ -1,4 +1,4 @@
-package ru.besttuts.finance;
+package ru.besttuts.finance.controllers;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
