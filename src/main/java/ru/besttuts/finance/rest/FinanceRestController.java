@@ -25,10 +25,10 @@ public class FinanceRestController {
     @RequestMapping("/quote-last-trade-date")
     public List<QuoteLastTradeDateDto> quoteLastTradeDates() {
 
-        quoteLastTradeDateRepository.save(new QuoteLastTradeDate("BZ", "BZX16.NYM", new Date(1475193600000L)));
-        quoteLastTradeDateRepository.save(new QuoteLastTradeDate("BZ", "BZZ16.NYM", new Date(1477872000000L)));
-        quoteLastTradeDateRepository.save(new QuoteLastTradeDate("BZ", "BZF17.NYM", new Date(1480464000000L)));
-        quoteLastTradeDateRepository.save(new QuoteLastTradeDate("BZ", "BZG17.NYM", new Date(1482969600000L)));
+//        quoteLastTradeDateRepository.save(new QuoteLastTradeDate("BZ", "BZX16.NYM", new Date(1475193600000L)));
+//        quoteLastTradeDateRepository.save(new QuoteLastTradeDate("BZ", "BZZ16.NYM", new Date(1477872000000L)));
+//        quoteLastTradeDateRepository.save(new QuoteLastTradeDate("BZ", "BZF17.NYM", new Date(1480464000000L)));
+//        quoteLastTradeDateRepository.save(new QuoteLastTradeDate("BZ", "BZG17.NYM", new Date(1482969600000L)));
 
         List<QuoteLastTradeDate> quoteLastTradeDates = (List<QuoteLastTradeDate>) quoteLastTradeDateRepository.findAll();
         List<QuoteLastTradeDateDto> quoteLastTradeDateDtos = new ArrayList<>();
