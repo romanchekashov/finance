@@ -14,7 +14,7 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
-@RequestMapping("/finance/api")
+@RequestMapping("/api")
 public class FinanceRestController {
 
     @Autowired
