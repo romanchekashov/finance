@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import ru.besttuts.finance.dao.QuoteLastTradeDateRepository;
-import ru.besttuts.finance.logic.ParseYahooFinanceForQuoteLastTradeDate;
+import ru.besttuts.finance.logic.ParseYahooForQuoteLastTradeDateService;
 
 import java.util.Calendar;
 
@@ -22,7 +22,7 @@ public class ScheduledTasks {
     private static final Logger LOG = LoggerFactory.getLogger(ScheduledTasks.class);
 
     @Autowired
-    QuoteLastTradeDateRepository quoteLastTradeDateRepository;
+    ParseYahooForQuoteLastTradeDateService lastTradeDateService;
 
     /**
      * second, minute, hour, day of month, month, day(s) of week
@@ -31,8 +31,7 @@ public class ScheduledTasks {
     public void parseYahooFinanceForQuoteLastTradeDate() {
         LOG.info("ScheduledTasks[parseYahooFinanceForQuoteLastTradeDate] {}",
                 Calendar.getInstance().getTime());
-
-        new ParseYahooFinanceForQuoteLastTradeDate(quoteLastTradeDateRepository).execute();
+        lastTradeDateService.execute();
     }
 
 

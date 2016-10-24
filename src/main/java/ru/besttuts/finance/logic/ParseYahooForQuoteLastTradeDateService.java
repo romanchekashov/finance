@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 import ru.besttuts.finance.dao.QuoteLastTradeDateRepository;
@@ -23,19 +26,19 @@ import java.util.concurrent.Executors;
  * @author romanchekashov
  * @since 25.10.2016
  */
-public class ParseYahooFinanceForQuoteLastTradeDate {
-    private static final Logger LOG = LoggerFactory.getLogger(ParseYahooFinanceForQuoteLastTradeDate.class);
+@Service
+public class ParseYahooForQuoteLastTradeDateService {
+    private static final Logger LOG = LoggerFactory.getLogger(ParseYahooForQuoteLastTradeDateService.class);
 
     private static final String HTTP_QUERY_YAHOOAPIS_COM_V10_FINANCE = "https://query1.finance.yahoo.com/v10/finance/";
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
-    QuoteLastTradeDateRepository quoteLastTradeDateRepository;
+    @Autowired
+    private QuoteLastTradeDateRepository quoteLastTradeDateRepository;
 
-    public ParseYahooFinanceForQuoteLastTradeDate(
-            QuoteLastTradeDateRepository quoteLastTradeDateRepository) {
-        this.quoteLastTradeDateRepository = quoteLastTradeDateRepository;
-    }
+    protected ParseYahooForQuoteLastTradeDateService() {}
 
+    @Async
     public void execute(){
         LOG.info("execute at {}", Calendar.getInstance().getTime());
 
@@ -57,7 +60,7 @@ public class ParseYahooFinanceForQuoteLastTradeDate {
             return;
         }
 
-        ExecutorService pool = Executors.newCachedThreadPool();
+        ExecutorService pool = Executors.newSingleThreadExecutor();
         YahooFinanceService yahooFinanceService = createYahooFinanceService();
         codesToFetchAgain.stream().forEach(code -> {
             pool.execute(new FetchQuoteLastTradeDatesByCodeRunnable(
@@ -71,7 +74,7 @@ public class ParseYahooFinanceForQuoteLastTradeDate {
                 "C", "S", "ZW", "CC", "KC", "CT", "LB", "OJ", "SB"};
         final CountDownLatch latch = new CountDownLatch(codes.length);
 
-        ExecutorService pool = Executors.newCachedThreadPool();
+        ExecutorService pool = Executors.newSingleThreadExecutor();
         YahooFinanceService yahooFinanceService = createYahooFinanceService();
         for (String code: codes){
             FetchQuoteLastTradeDatesByCodeRunnable runnable = new FetchQuoteLastTradeDatesByCodeRunnable(
