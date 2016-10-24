@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="create_table_quote_last_trade_date" author="rchekashov">
+        <createTable tableName="quote_last_trade_date">
+            <column name="symbol" type="varchar(16)">
+                <constraints primaryKey="true" primaryKeyName="quote_last_trade_date_pkey" nullable="false"/>
+            </column>
+            <column name="code" type="varchar(4)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_trade_date" type="timestamp"></column>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="quote_last_trade_date"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

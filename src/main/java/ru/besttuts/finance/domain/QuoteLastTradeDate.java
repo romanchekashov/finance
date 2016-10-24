@@ -1,8 +1,6 @@
 package ru.besttuts.finance.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
 
 /**
@@ -10,20 +8,23 @@ import java.util.Date;
  * @since 22.10.2016
  */
 @Entity
+@Table(name = "quote_last_trade_date")
 public class QuoteLastTradeDate {
 
     @Id
     @Column(length = 16, nullable = false)
     private String symbol;
 
-    @Column(length = 8, nullable = false)
-    private String code;
+    @Column(length = 4, nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Code code;
 
+    @Column(name = "last_trade_date")
     private Date lastTradeDate;
 
     protected QuoteLastTradeDate() {}
 
-    public QuoteLastTradeDate(String code, String symbol, Date lastTradeDate) {
+    public QuoteLastTradeDate(Code code, String symbol, Date lastTradeDate) {
         this.code = code;
         this.symbol = symbol;
         this.lastTradeDate = lastTradeDate;
@@ -37,11 +38,11 @@ public class QuoteLastTradeDate {
         this.symbol = symbol;
     }
 
-    public String getCode() {
+    public Code getCode() {
         return code;
     }
 
-    public void setCode(String code) {
+    public void setCode(Code code) {
         this.code = code;
     }
 

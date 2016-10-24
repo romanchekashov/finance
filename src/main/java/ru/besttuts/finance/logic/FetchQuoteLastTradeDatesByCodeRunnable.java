@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.besttuts.finance.dao.QuoteLastTradeDateRepository;
+import ru.besttuts.finance.domain.Code;
 import ru.besttuts.finance.domain.QuoteLastTradeDate;
 import ru.besttuts.finance.logic.yahoo.YahooFinanceService;
 import ru.besttuts.finance.logic.yahoo.model.YahooFutures;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * @author romanchekashov
@@ -31,12 +33,13 @@ public class FetchQuoteLastTradeDatesByCodeRunnable implements Runnable {
 
     QuoteLastTradeDateRepository quoteLastTradeDateRepository;
     YahooFinanceService service;
+    CountDownLatch latch;
 
-    private String code;
+    private Code code;
 
     protected FetchQuoteLastTradeDatesByCodeRunnable() {}
 
-    public FetchQuoteLastTradeDatesByCodeRunnable(String code, QuoteLastTradeDateRepository quoteLastTradeDateRepository, YahooFinanceService service) {
+    public FetchQuoteLastTradeDatesByCodeRunnable(Code code, QuoteLastTradeDateRepository quoteLastTradeDateRepository, YahooFinanceService service) {
         this.code = code;
         this.quoteLastTradeDateRepository = quoteLastTradeDateRepository;
         this.service = service;
@@ -47,23 +50,25 @@ public class FetchQuoteLastTradeDatesByCodeRunnable implements Runnable {
         try {
             YahooFutures yahooFutures = fetchYahooFutures(code);
             for (String symbol: yahooFutures.getFutures()) {
-                LOG.info("symbol is: {}", symbol);
-                LOG.info("url is: {}", createUrlFuture(symbol));
-
-                Document docQuote = Jsoup.connect(createUrlFuture(symbol)).get();
-
                 try {
+                    Document docQuote = Jsoup.connect(createUrlFuture(symbol)).get();
                     Elements settlementDate = docQuote.select("td[data-test='SETTLEMENT_DATE-value']");
                     Date date = dateFormat.parse(settlementDate.html().trim());
-                    LOG.info("settlementDate is: {}", settlementDate.html());
+                    LOG.info("save symbol {} with settlementDate {}.", symbol, settlementDate.html());
                     quoteLastTradeDateRepository.save(new QuoteLastTradeDate(code, symbol, date));
                 } catch (ParseException e) {
-                    LOG.warn("settlementDate is: {}", e.getMessage());
+                    LOG.warn("cannot save symbol {} because {}.", symbol, e.getMessage());
+                } catch (IOException e) {
+                    LOG.warn("Cannot fetch settlementDate of: {} because {}.", symbol, e.getMessage());
+                    quoteLastTradeDateRepository.save(new QuoteLastTradeDate(code, symbol, new Date(0)));
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.warn("Cannot fetch code: {} because {}.", code, e.getMessage());
+            quoteLastTradeDateRepository.save(new QuoteLastTradeDate(code, String.valueOf(code), new Date(0)));
         }
+
+        if(null != latch) latch.countDown();
     }
 
     public String createUrlFuture(String symbol){
@@ -74,7 +79,11 @@ public class FetchQuoteLastTradeDatesByCodeRunnable implements Runnable {
         return String.format(urlFutures, code, code);
     }
 
-    public YahooFutures fetchYahooFutures(String code) throws IOException {
-        return service.yahooFuturesCall(code).execute().body();
+    public YahooFutures fetchYahooFutures(Code code) throws IOException {
+        return service.yahooFuturesCall(String.valueOf(code)).execute().body();
+    }
+
+    public void setLatch(CountDownLatch latch) {
+        this.latch = latch;
     }
 }

@@ -11,6 +11,7 @@ import org.mockito.MockitoAnnotations;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 import ru.besttuts.finance.dao.QuoteLastTradeDateRepository;
+import ru.besttuts.finance.domain.Code;
 import ru.besttuts.finance.domain.QuoteLastTradeDate;
 import ru.besttuts.finance.logic.yahoo.YahooFinanceService;
 import ru.besttuts.finance.logic.yahoo.deserializer.YahooFuturesDeserializer;
@@ -28,7 +29,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class FetchQuoteLastTradeDatesByCodeRunnableTest {
     private final String urlFutureExpected = "http://finance.yahoo.com/quote/BZ%3DF/futures?p=BZ%3DF";
-    private final String codeBZ = "BZ";
+    private final Code codeBZ = Code.BZ;
 
 //    "https://query1.finance.yahoo.com/v10/finance/quoteSummary/BZ=F?formatted=true&crumb=e.qopTac4Gd&lang=en-US&region=US&modules=futuresChain&corsDomain=finance.yahoo.com"
     FetchQuoteLastTradeDatesByCodeRunnable runnable;
@@ -45,12 +46,12 @@ public class FetchQuoteLastTradeDatesByCodeRunnableTest {
         pool = Executors.newCachedThreadPool();
 
         Mockito.when(mockQuoteLastTradeDateRepository.save(Matchers.any(QuoteLastTradeDate.class)))
-                .thenReturn(new QuoteLastTradeDate(codeBZ, codeBZ, new Date()));
+                .thenReturn(new QuoteLastTradeDate(codeBZ, codeBZ.toString(), new Date()));
     }
 
     @Test
     public void test_url_formatter() {
-        assertEquals(urlFutureExpected, runnable.createUrlFutures(codeBZ));
+        assertEquals(urlFutureExpected, runnable.createUrlFutures(codeBZ.toString()));
     }
 
     @Test

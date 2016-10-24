@@ -7,13 +7,14 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.besttuts.finance.dao.QuoteLastTradeDateRepository;
 import ru.besttuts.finance.domain.QuoteLastTradeDate;
 import ru.besttuts.finance.dto.QuoteLastTradeDateDto;
+import ru.besttuts.finance.logic.ParseYahooFinanceForQuoteLastTradeDate;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/finance/api", headers = {"Accept=application/json"})
+@RequestMapping("/finance/api")
 public class FinanceRestController {
 
     @Autowired
@@ -22,15 +23,11 @@ public class FinanceRestController {
     @Autowired
     QuoteLastTradeDateRepository quoteLastTradeDateRepository;
 
-    @RequestMapping("/quote-last-trade-date")
+    @RequestMapping(value = "/quote-last-trade-date", headers = {"Accept=application/json"})
     public List<QuoteLastTradeDateDto> quoteLastTradeDates() {
 
-//        quoteLastTradeDateRepository.save(new QuoteLastTradeDate("BZ", "BZX16.NYM", new Date(1475193600000L)));
-//        quoteLastTradeDateRepository.save(new QuoteLastTradeDate("BZ", "BZZ16.NYM", new Date(1477872000000L)));
-//        quoteLastTradeDateRepository.save(new QuoteLastTradeDate("BZ", "BZF17.NYM", new Date(1480464000000L)));
-//        quoteLastTradeDateRepository.save(new QuoteLastTradeDate("BZ", "BZG17.NYM", new Date(1482969600000L)));
-
-        List<QuoteLastTradeDate> quoteLastTradeDates = (List<QuoteLastTradeDate>) quoteLastTradeDateRepository.findAll();
+        List<QuoteLastTradeDate> quoteLastTradeDates = quoteLastTradeDateRepository
+                .findByLastTradeDateGreaterThanOrderByLastTradeDate(new Date(10));
         List<QuoteLastTradeDateDto> quoteLastTradeDateDtos = new ArrayList<>();
 
         for (QuoteLastTradeDate quoteLastTradeDate: quoteLastTradeDates){
@@ -38,6 +35,14 @@ public class FinanceRestController {
         }
 
         return quoteLastTradeDateDtos;
+    }
+
+    @RequestMapping("/parse-yahoo-for-quote-last-trade-date")
+    public String parseYahooForQuoteLastTradeDate() {
+
+        new ParseYahooFinanceForQuoteLastTradeDate(quoteLastTradeDateRepository).execute();
+
+        return "OK";
     }
 
 }
