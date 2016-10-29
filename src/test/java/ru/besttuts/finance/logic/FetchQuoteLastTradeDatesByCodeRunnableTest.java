@@ -13,7 +13,8 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 import ru.besttuts.finance.dao.QuoteLastTradeDateRepository;
 import ru.besttuts.finance.domain.Code;
 import ru.besttuts.finance.domain.QuoteLastTradeDate;
-import ru.besttuts.finance.logic.yahoo.YahooFinanceService;
+import ru.besttuts.finance.logic.yahoo.FetchQuoteLastTradeDatesByCodeRunnable;
+import ru.besttuts.finance.logic.yahoo.YahooFinanceRetrofitService;
 import ru.besttuts.finance.logic.yahoo.deserializer.YahooFuturesDeserializer;
 import ru.besttuts.finance.logic.yahoo.model.YahooFutures;
 
@@ -61,7 +62,7 @@ public class FetchQuoteLastTradeDatesByCodeRunnableTest {
 
     private static final String HTTP_QUERY_YAHOOAPIS_COM_V10_FINANCE = "https://query1.finance.yahoo.com/v10/finance/";
 
-    private YahooFinanceService createYahooFinanceService(){
+    private YahooFinanceRetrofitService createYahooFinanceService(){
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
         module.addDeserializer(YahooFutures.class, new YahooFuturesDeserializer(YahooFutures.class));
@@ -72,6 +73,6 @@ public class FetchQuoteLastTradeDatesByCodeRunnableTest {
                 .addConverterFactory(JacksonConverterFactory.create(mapper))
                 .build();
 
-        return retrofit.create(YahooFinanceService.class);
+        return retrofit.create(YahooFinanceRetrofitService.class);
     }
 }

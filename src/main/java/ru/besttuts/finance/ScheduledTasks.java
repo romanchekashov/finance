@@ -5,8 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import ru.besttuts.finance.dao.QuoteLastTradeDateRepository;
-import ru.besttuts.finance.logic.ParseYahooForQuoteLastTradeDateService;
+import ru.besttuts.finance.logic.yahoo.ParseYahooForQuoteLastTradeDateService;
 
 import java.util.Calendar;
 

@@ -7,4 +7,9 @@
         <class-a>ru.besttuts.finance.domain.QuoteLastTradeDate</class-a>
         <class-b>ru.besttuts.finance.dto.QuoteLastTradeDateDto</class-b>
     </mapping>
+
+    <mapping>
+        <class-a>ru.besttuts.finance.domain.QuoteLastTradeDate</class-a>
+        <class-b>ru.besttuts.finance.logic.besttuts.model.BesttutsFinanceQuoteLastTradeDate</class-b>
+    </mapping>
 </mappings>

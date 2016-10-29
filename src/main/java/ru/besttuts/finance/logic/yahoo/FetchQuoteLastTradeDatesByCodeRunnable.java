@@ -1,17 +1,13 @@
-package ru.besttuts.finance.logic;
+package ru.besttuts.finance.logic.yahoo;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import ru.besttuts.finance.dao.QuoteLastTradeDateRepository;
 import ru.besttuts.finance.domain.Code;
 import ru.besttuts.finance.domain.QuoteLastTradeDate;
-import ru.besttuts.finance.logic.yahoo.YahooFinanceService;
 import ru.besttuts.finance.logic.yahoo.model.YahooFutures;
 
 import java.io.IOException;
@@ -32,14 +28,14 @@ public class FetchQuoteLastTradeDatesByCodeRunnable implements Runnable {
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); //2016-10-31
 
     QuoteLastTradeDateRepository quoteLastTradeDateRepository;
-    YahooFinanceService service;
+    YahooFinanceRetrofitService service;
     CountDownLatch latch;
 
     private Code code;
 
     protected FetchQuoteLastTradeDatesByCodeRunnable() {}
 
-    public FetchQuoteLastTradeDatesByCodeRunnable(Code code, QuoteLastTradeDateRepository quoteLastTradeDateRepository, YahooFinanceService service) {
+    public FetchQuoteLastTradeDatesByCodeRunnable(Code code, QuoteLastTradeDateRepository quoteLastTradeDateRepository, YahooFinanceRetrofitService service) {
         this.code = code;
         this.quoteLastTradeDateRepository = quoteLastTradeDateRepository;
         this.service = service;

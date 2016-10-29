@@ -1,4 +1,4 @@
-package ru.besttuts.finance.logic;
+package ru.besttuts.finance.logic.yahoo;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -12,7 +12,7 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 import ru.besttuts.finance.dao.QuoteLastTradeDateRepository;
 import ru.besttuts.finance.domain.Code;
 import ru.besttuts.finance.domain.QuoteLastTradeDate;
-import ru.besttuts.finance.logic.yahoo.YahooFinanceService;
+import ru.besttuts.finance.logic.besttuts.BesttutsFinanceSyncService;
 import ru.besttuts.finance.logic.yahoo.deserializer.YahooFuturesDeserializer;
 import ru.besttuts.finance.logic.yahoo.model.YahooFutures;
 
@@ -35,6 +35,8 @@ public class ParseYahooForQuoteLastTradeDateService {
 
     @Autowired
     private QuoteLastTradeDateRepository quoteLastTradeDateRepository;
+    @Autowired
+    private BesttutsFinanceSyncService besttutsFinanceSyncService;
 
     protected ParseYahooForQuoteLastTradeDateService() {}
 
@@ -60,14 +62,28 @@ public class ParseYahooForQuoteLastTradeDateService {
             return;
         }
 
-        ExecutorService pool = Executors.newSingleThreadExecutor();
-        YahooFinanceService yahooFinanceService = createYahooFinanceService();
-        codesToFetchAgain.stream().forEach(code -> {
-            pool.execute(new FetchQuoteLastTradeDatesByCodeRunnable(
-                    code, quoteLastTradeDateRepository, yahooFinanceService));
-        });
+        refetchQuotes(codesToFetchAgain);
+
+        besttutsFinanceSyncService.sync();
     }
 
+    private void refetchQuotes(Set<Code> codesToFetchAgain){
+        ExecutorService pool = Executors.newSingleThreadExecutor();
+        YahooFinanceRetrofitService yahooFinanceService = createYahooFinanceService();
+        final CountDownLatch latch = new CountDownLatch(codesToFetchAgain.size());
+        codesToFetchAgain.stream().forEach(code -> {
+            FetchQuoteLastTradeDatesByCodeRunnable runnable = new FetchQuoteLastTradeDatesByCodeRunnable(
+                    code, quoteLastTradeDateRepository, yahooFinanceService);
+            runnable.setLatch(latch);
+            pool.execute(runnable);
+        });
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            LOG.error("refetchQuotes not complete cause {}", e.getMessage());
+        }
+    }
 
     private void fetchQuotesWithAllCodes(){
         String[] codes = {"BZ", "CL", "GC", "SI", "PL", "PA", "HG", "NG",
@@ -75,7 +91,7 @@ public class ParseYahooForQuoteLastTradeDateService {
         final CountDownLatch latch = new CountDownLatch(codes.length);
 
         ExecutorService pool = Executors.newSingleThreadExecutor();
-        YahooFinanceService yahooFinanceService = createYahooFinanceService();
+        YahooFinanceRetrofitService yahooFinanceService = createYahooFinanceService();
         for (String code: codes){
             FetchQuoteLastTradeDatesByCodeRunnable runnable = new FetchQuoteLastTradeDatesByCodeRunnable(
                     Code.valueOf(code), quoteLastTradeDateRepository, yahooFinanceService);
@@ -91,7 +107,7 @@ public class ParseYahooForQuoteLastTradeDateService {
 
     }
 
-    private YahooFinanceService createYahooFinanceService(){
+    private YahooFinanceRetrofitService createYahooFinanceService(){
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
         module.addDeserializer(YahooFutures.class, new YahooFuturesDeserializer(YahooFutures.class));
@@ -102,6 +118,6 @@ public class ParseYahooForQuoteLastTradeDateService {
                 .addConverterFactory(JacksonConverterFactory.create(mapper))
                 .build();
 
-        return retrofit.create(YahooFinanceService.class);
+        return retrofit.create(YahooFinanceRetrofitService.class);
     }
 }

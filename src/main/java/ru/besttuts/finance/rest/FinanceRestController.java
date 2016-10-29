@@ -7,7 +7,8 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.besttuts.finance.dao.QuoteLastTradeDateRepository;
 import ru.besttuts.finance.domain.QuoteLastTradeDate;
 import ru.besttuts.finance.dto.QuoteLastTradeDateDto;
-import ru.besttuts.finance.logic.ParseYahooForQuoteLastTradeDateService;
+import ru.besttuts.finance.logic.besttuts.BesttutsFinanceSyncService;
+import ru.besttuts.finance.logic.yahoo.ParseYahooForQuoteLastTradeDateService;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,6 +25,8 @@ public class FinanceRestController {
     QuoteLastTradeDateRepository quoteLastTradeDateRepository;
     @Autowired
     ParseYahooForQuoteLastTradeDateService lastTradeDateService;
+    @Autowired
+    private BesttutsFinanceSyncService besttutsFinanceSyncService;
 
     @RequestMapping(value = "/quote-last-trade-date", headers = {"Accept=application/json"})
     public List<QuoteLastTradeDateDto> quoteLastTradeDates() {
@@ -43,6 +46,14 @@ public class FinanceRestController {
     public String parseYahooForQuoteLastTradeDate() {
 
         lastTradeDateService.execute();
+
+        return "OK";
+    }
+
+    @RequestMapping("/sync-finance-besttuts-ru")
+    public String syncFinanceBesttutsRu() {
+
+        besttutsFinanceSyncService.sync();
 
         return "OK";
     }
