@@ -4,6 +4,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.CrudRepository;
 import ru.besttuts.finance.domain.QuoteLastTradeDate;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -13,7 +14,7 @@ import java.util.List;
  */
 public interface QuoteLastTradeDateRepository extends CrudRepository<QuoteLastTradeDate, String> {
 
-    List<QuoteLastTradeDate> findByLastTradeDateGreaterThan(Date lastTradeDate, Sort sort);
+    List<QuoteLastTradeDate> findByLastTradeDateGreaterThan(LocalDate lastTradeDate, Sort sort);
 
-    List<QuoteLastTradeDate> findByLastTradeDateLessThanOrderByLastTradeDate(Date lastTradeDate);
+    List<QuoteLastTradeDate> findByLastTradeDateLessThanOrderByLastTradeDate(LocalDate lastTradeDate);
 }

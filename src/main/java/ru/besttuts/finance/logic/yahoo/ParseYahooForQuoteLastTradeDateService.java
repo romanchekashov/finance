@@ -17,6 +17,7 @@ import ru.besttuts.finance.logic.yahoo.deserializer.YahooFuturesDeserializer;
 import ru.besttuts.finance.logic.yahoo.model.YahooFutures;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -51,7 +52,7 @@ public class ParseYahooForQuoteLastTradeDateService {
         }
 
         quoteLastTradeDates = quoteLastTradeDateRepository
-                .findByLastTradeDateLessThanOrderByLastTradeDate(new Date(10));
+                .findByLastTradeDateLessThanOrderByLastTradeDate(LocalDate.of(1970, 1, 1));
 
         Set<Code> codesToFetchAgain = new HashSet<>();
         for (QuoteLastTradeDate quoteLastTradeDate: quoteLastTradeDates){

@@ -15,6 +15,7 @@ import ru.besttuts.finance.domain.QuoteLastTradeDate;
 import ru.besttuts.finance.logic.besttuts.model.BesttutsFinanceQuoteLastTradeDate;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,8 +40,8 @@ public class BesttutsFinanceSyncService {
 
     @Async
     public void sync(){
-        List<QuoteLastTradeDate> quoteLastTradeDates = quoteLastTradeDateRepository
-                .findByLastTradeDateGreaterThan(new Date(10), new Sort("code", "last_trade_date"));
+        List<QuoteLastTradeDate> quoteLastTradeDates = (List<QuoteLastTradeDate>) quoteLastTradeDateRepository.findAll();
+//                .findByLastTradeDateGreaterThan(LocalDate.of(1970, 1, 1), new Sort("code", "last_trade_date"));
         LOG.info("[sync]: fetched from DB quoteLastTradeDates.size = {}", quoteLastTradeDates.size());
 
         List<BesttutsFinanceQuoteLastTradeDate> besttutsFinanceQuoteLastTradeDates = new ArrayList<>();
