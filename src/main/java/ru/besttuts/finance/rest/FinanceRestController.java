@@ -2,6 +2,7 @@ package ru.besttuts.finance.rest;
 
 import org.dozer.DozerBeanMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.besttuts.finance.dao.QuoteLastTradeDateRepository;
@@ -32,7 +33,7 @@ public class FinanceRestController {
     public List<QuoteLastTradeDateDto> quoteLastTradeDates() {
 
         List<QuoteLastTradeDate> quoteLastTradeDates = quoteLastTradeDateRepository
-                .findByLastTradeDateGreaterThanOrderByLastTradeDate(new Date(10));
+                .findByLastTradeDateGreaterThan(new Date(10), new Sort("code", "last_trade_date"));
         List<QuoteLastTradeDateDto> quoteLastTradeDateDtos = new ArrayList<>();
 
         for (QuoteLastTradeDate quoteLastTradeDate: quoteLastTradeDates){

@@ -1,11 +1,11 @@
 package ru.besttuts.finance.logic.besttuts;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.dozer.DozerBeanMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import retrofit2.Retrofit;
@@ -13,11 +13,9 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 import ru.besttuts.finance.dao.QuoteLastTradeDateRepository;
 import ru.besttuts.finance.domain.QuoteLastTradeDate;
 import ru.besttuts.finance.logic.besttuts.model.BesttutsFinanceQuoteLastTradeDate;
-import ru.besttuts.finance.logic.yahoo.YahooFinanceRetrofitService;
-import ru.besttuts.finance.logic.yahoo.deserializer.YahooFuturesDeserializer;
-import ru.besttuts.finance.logic.yahoo.model.YahooFutures;
 
 import java.io.IOException;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -42,14 +40,18 @@ public class BesttutsFinanceSyncService {
     @Async
     public void sync(){
         List<QuoteLastTradeDate> quoteLastTradeDates = quoteLastTradeDateRepository
-                .findByLastTradeDateGreaterThanOrderByLastTradeDate(new Date(10));
+                .findByLastTradeDateGreaterThan(new Date(10), new Sort("code", "last_trade_date"));
         LOG.info("[sync]: fetched from DB quoteLastTradeDates.size = {}", quoteLastTradeDates.size());
 
         List<BesttutsFinanceQuoteLastTradeDate> besttutsFinanceQuoteLastTradeDates = new ArrayList<>();
-        for (QuoteLastTradeDate quoteLastTradeDate: quoteLastTradeDates){
-            besttutsFinanceQuoteLastTradeDates.add(dozerBeanMapper
-                    .map(quoteLastTradeDate, BesttutsFinanceQuoteLastTradeDate.class));
-        }
+
+        int currentYear = Year.now().getValue();
+        quoteLastTradeDates.stream().forEach(quote -> {
+            if(currentYear == quote.getLastTradeDate().getYear()){
+                besttutsFinanceQuoteLastTradeDates.add(dozerBeanMapper
+                        .map(quote, BesttutsFinanceQuoteLastTradeDate.class));
+            }
+        });
 
         BesttutsFinanceRetrofitService retrofitService = createBesttutsFinanceRetrofitService();
         try {

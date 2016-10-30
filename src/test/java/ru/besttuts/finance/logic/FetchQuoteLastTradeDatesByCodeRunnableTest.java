@@ -18,6 +18,7 @@ import ru.besttuts.finance.logic.yahoo.YahooFinanceRetrofitService;
 import ru.besttuts.finance.logic.yahoo.deserializer.YahooFuturesDeserializer;
 import ru.besttuts.finance.logic.yahoo.model.YahooFutures;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -47,7 +48,7 @@ public class FetchQuoteLastTradeDatesByCodeRunnableTest {
         pool = Executors.newCachedThreadPool();
 
         Mockito.when(mockQuoteLastTradeDateRepository.save(Matchers.any(QuoteLastTradeDate.class)))
-                .thenReturn(new QuoteLastTradeDate(codeBZ, codeBZ.toString(), new Date()));
+                .thenReturn(new QuoteLastTradeDate(codeBZ, codeBZ.toString(), LocalDate.now()));
     }
 
     @Test

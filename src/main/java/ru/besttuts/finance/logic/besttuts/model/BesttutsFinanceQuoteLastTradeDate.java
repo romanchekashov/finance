@@ -2,6 +2,7 @@ package ru.besttuts.finance.logic.besttuts.model;
 
 import ru.besttuts.finance.domain.Code;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 /**
@@ -12,7 +13,7 @@ import java.util.Date;
 public class BesttutsFinanceQuoteLastTradeDate {
     private String symbol;
     private Code code;
-    private Date lastTradeDate;
+    private LocalDate lastTradeDate;
 
     public BesttutsFinanceQuoteLastTradeDate() {}
 
@@ -32,11 +33,11 @@ public class BesttutsFinanceQuoteLastTradeDate {
         this.code = code;
     }
 
-    public Date getLastTradeDate() {
+    public LocalDate getLastTradeDate() {
         return lastTradeDate;
     }
 
-    public void setLastTradeDate(Date lastTradeDate) {
+    public void setLastTradeDate(LocalDate lastTradeDate) {
         this.lastTradeDate = lastTradeDate;
     }
 }

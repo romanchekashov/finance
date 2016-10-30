@@ -13,7 +13,7 @@
             <column name="code" type="varchar(4)">
                 <constraints nullable="false"/>
             </column>
-            <column name="last_trade_date" type="timestamp"></column>
+            <column name="last_trade_date" type="date"></column>
         </createTable>
 
         <rollback>

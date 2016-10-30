@@ -1,7 +1,9 @@
 package ru.besttuts.finance.domain;
 
+import org.hibernate.annotations.Type;
+
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
 
 /**
  * @author romanchekashov
@@ -20,11 +22,12 @@ public class QuoteLastTradeDate {
     private Code code;
 
     @Column(name = "last_trade_date")
-    private Date lastTradeDate;
+//    @Type(type="date")
+    private LocalDate lastTradeDate;
 
     protected QuoteLastTradeDate() {}
 
-    public QuoteLastTradeDate(Code code, String symbol, Date lastTradeDate) {
+    public QuoteLastTradeDate(Code code, String symbol, LocalDate lastTradeDate) {
         this.code = code;
         this.symbol = symbol;
         this.lastTradeDate = lastTradeDate;
@@ -46,11 +49,11 @@ public class QuoteLastTradeDate {
         this.code = code;
     }
 
-    public Date getLastTradeDate() {
+    public LocalDate getLastTradeDate() {
         return lastTradeDate;
     }
 
-    public void setLastTradeDate(Date lastTradeDate) {
+    public void setLastTradeDate(LocalDate lastTradeDate) {
         this.lastTradeDate = lastTradeDate;
     }
 
