@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 import ru.besttuts.finance.dao.QuoteLastTradeDateRepository;
@@ -29,7 +32,8 @@ import java.util.List;
 public class BesttutsFinanceSyncService {
     private static final Logger LOG = LoggerFactory.getLogger(BesttutsFinanceSyncService.class);
 
-    private static final String HTTP_API = "http://localhost:8080/finance-rest/";
+//    private static final String HTTP_API = "http://localhost:8080/finance-rest/";
+    private static final String HTTP_API = "http://finance.besttuts.ru/";
 
     @Autowired
     DozerBeanMapper dozerBeanMapper;
@@ -40,28 +44,43 @@ public class BesttutsFinanceSyncService {
 
     @Async
     public void sync(){
-        List<QuoteLastTradeDate> quoteLastTradeDates = (List<QuoteLastTradeDate>) quoteLastTradeDateRepository.findAll();
-//                .findByLastTradeDateGreaterThan(LocalDate.of(1970, 1, 1), new Sort("code", "last_trade_date"));
+
+        int currentYear = Year.now().getValue();
+        List<QuoteLastTradeDate> quoteLastTradeDates = quoteLastTradeDateRepository
+                .findByYear(LocalDate.of(currentYear, 1, 1), LocalDate.of(currentYear, 12, 31));
         LOG.info("[sync]: fetched from DB quoteLastTradeDates.size = {}", quoteLastTradeDates.size());
 
         List<BesttutsFinanceQuoteLastTradeDate> besttutsFinanceQuoteLastTradeDates = new ArrayList<>();
 
-        int currentYear = Year.now().getValue();
         quoteLastTradeDates.stream().forEach(quote -> {
-            if(currentYear == quote.getLastTradeDate().getYear()){
-                besttutsFinanceQuoteLastTradeDates.add(dozerBeanMapper
-                        .map(quote, BesttutsFinanceQuoteLastTradeDate.class));
-            }
+            BesttutsFinanceQuoteLastTradeDate besttutsFinanceQuote = new BesttutsFinanceQuoteLastTradeDate();
+            besttutsFinanceQuote.setCode(quote.getCode());
+            besttutsFinanceQuote.setSymbol(quote.getSymbol());
+            besttutsFinanceQuote.setLastTradeDate(java.sql.Date.valueOf(quote.getLastTradeDate()));
+
+            besttutsFinanceQuoteLastTradeDates.add(besttutsFinanceQuote);
         });
 
         BesttutsFinanceRetrofitService retrofitService = createBesttutsFinanceRetrofitService();
         try {
-            List<String> savedIds = retrofitService.save(
-                    besttutsFinanceQuoteLastTradeDates).execute().body();
+            List<String> savedIds = retrofitService.save(besttutsFinanceQuoteLastTradeDates).execute().body();
             LOG.info("[sync]: savedIds = {}", savedIds.toString());
         } catch (IOException e) {
             LOG.error("[sync]: not complete cause {}", e.getMessage());
         }
+
+//        Call<List<String>> call = retrofitService.save(besttutsFinanceQuoteLastTradeDates);
+//        call.enqueue(new Callback<List<String>>() {
+//            @Override
+//            public void onResponse(Call<List<String>> call, Response<List<String>> response) {
+//                LOG.info("[sync]: savedIds = {}", response.body().toString());
+//            }
+//
+//            @Override
+//            public void onFailure(Call<List<String>> call, Throwable throwable) {
+//                LOG.error("[sync]: not complete cause {}", throwable.getMessage());
+//            }
+//        });
     }
 
     private BesttutsFinanceRetrofitService createBesttutsFinanceRetrofitService(){

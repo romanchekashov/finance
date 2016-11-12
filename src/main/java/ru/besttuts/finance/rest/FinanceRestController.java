@@ -12,6 +12,7 @@ import ru.besttuts.finance.logic.besttuts.BesttutsFinanceSyncService;
 import ru.besttuts.finance.logic.yahoo.ParseYahooForQuoteLastTradeDateService;
 
 import java.time.LocalDate;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -33,11 +34,18 @@ public class FinanceRestController {
     @RequestMapping(value = "/quote-last-trade-date", headers = {"Accept=application/json"})
     public List<QuoteLastTradeDateDto> quoteLastTradeDates() {
 
-        List<QuoteLastTradeDate> quoteLastTradeDates = (List<QuoteLastTradeDate>) quoteLastTradeDateRepository.findAll();
+        int currentYear = Year.now().getValue();
+        List<QuoteLastTradeDate> quoteLastTradeDates = quoteLastTradeDateRepository
+                .findByYear(LocalDate.of(currentYear, 1, 1), LocalDate.of(currentYear, 12, 31));
         List<QuoteLastTradeDateDto> quoteLastTradeDateDtos = new ArrayList<>();
 
         quoteLastTradeDates.stream().forEach(quote -> {
-            quoteLastTradeDateDtos.add(dozerBeanMapper.map(quote, QuoteLastTradeDateDto.class));
+            QuoteLastTradeDateDto dto = new QuoteLastTradeDateDto();
+            dto.setCode(quote.getCode().toString());
+            dto.setSymbol(quote.getSymbol());
+            dto.setLastTradeDate(quote.getLastTradeDate().toEpochDay());
+
+            quoteLastTradeDateDtos.add(dto);
         });
 
         return quoteLastTradeDateDtos;

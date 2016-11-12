@@ -10,7 +10,7 @@ public class QuoteLastTradeDateDto {
     private String symbol;
     private long lastTradeDate;
 
-    protected QuoteLastTradeDateDto() {}
+    public QuoteLastTradeDateDto() {}
 
     public QuoteLastTradeDateDto(String code, String symbol, long lastTradeDate) {
         this.code = code;
