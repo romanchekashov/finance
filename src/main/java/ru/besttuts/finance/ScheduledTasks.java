@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import ru.besttuts.finance.logic.besttuts.BesttutsFinanceSyncService;
 import ru.besttuts.finance.logic.yahoo.ParseYahooForQuoteLastTradeDateService;
 
 import java.util.Calendar;
@@ -22,6 +23,8 @@ public class ScheduledTasks {
 
     @Autowired
     ParseYahooForQuoteLastTradeDateService lastTradeDateService;
+    @Autowired
+    private BesttutsFinanceSyncService besttutsFinanceSyncService;
 
     /**
      * second, minute, hour, day of month, month, day(s) of week
@@ -31,6 +34,7 @@ public class ScheduledTasks {
         LOG.info("ScheduledTasks[parseYahooFinanceForQuoteLastTradeDate] {}",
                 Calendar.getInstance().getTime());
         lastTradeDateService.execute();
+        besttutsFinanceSyncService.sync();
     }
 
 

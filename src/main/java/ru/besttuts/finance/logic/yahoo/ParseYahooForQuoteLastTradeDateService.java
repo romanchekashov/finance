@@ -45,13 +45,9 @@ public class ParseYahooForQuoteLastTradeDateService {
     public void execute(){
         LOG.info("execute at {}", Calendar.getInstance().getTime());
 
-        List<QuoteLastTradeDate> quoteLastTradeDates = (List<QuoteLastTradeDate>)
-                quoteLastTradeDateRepository.findAll();
-        if(quoteLastTradeDates.isEmpty()){
-            fetchQuotesWithAllCodes();
-        }
+        fetchQuotes(Arrays.asList(Code.values()));
 
-        quoteLastTradeDates = quoteLastTradeDateRepository
+        List<QuoteLastTradeDate> quoteLastTradeDates = quoteLastTradeDateRepository
                 .findByLastTradeDateLessThanOrderByLastTradeDate(LocalDate.of(1970, 1, 1));
 
         Set<Code> codesToFetchAgain = new HashSet<>();
@@ -59,16 +55,14 @@ public class ParseYahooForQuoteLastTradeDateService {
             codesToFetchAgain.add(quoteLastTradeDate.getCode());
         }
 
-        if (codesToFetchAgain.isEmpty()){
-            return;
+        if (!codesToFetchAgain.isEmpty()){
+            fetchQuotes(new ArrayList<>(codesToFetchAgain));
         }
 
-        refetchQuotes(codesToFetchAgain);
-
-        besttutsFinanceSyncService.sync();
+        LOG.info("Parsing END at {}", Calendar.getInstance().getTime());
     }
 
-    private void refetchQuotes(Set<Code> codesToFetchAgain){
+    private void fetchQuotes(List<Code> codesToFetchAgain){
         ExecutorService pool = Executors.newSingleThreadExecutor();
         YahooFinanceRetrofitService yahooFinanceService = createYahooFinanceService();
         final CountDownLatch latch = new CountDownLatch(codesToFetchAgain.size());
@@ -82,30 +76,8 @@ public class ParseYahooForQuoteLastTradeDateService {
         try {
             latch.await();
         } catch (InterruptedException e) {
-            LOG.error("refetchQuotes not complete cause {}", e.getMessage());
+            LOG.error("fetchQuotes not complete cause {}", e.getMessage());
         }
-    }
-
-    private void fetchQuotesWithAllCodes(){
-        String[] codes = {"BZ", "CL", "GC", "SI", "PL", "PA", "HG", "NG",
-                "C", "S", "ZW", "CC", "KC", "CT", "LB", "OJ", "SB"};
-        final CountDownLatch latch = new CountDownLatch(codes.length);
-
-        ExecutorService pool = Executors.newSingleThreadExecutor();
-        YahooFinanceRetrofitService yahooFinanceService = createYahooFinanceService();
-        for (String code: codes){
-            FetchQuoteLastTradeDatesByCodeRunnable runnable = new FetchQuoteLastTradeDatesByCodeRunnable(
-                    Code.valueOf(code), quoteLastTradeDateRepository, yahooFinanceService);
-            runnable.setLatch(latch);
-            pool.execute(runnable);
-        }
-
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            LOG.error("fetchQuotesWithAllCodes not complete cause {}", e.getMessage());
-        }
-
     }
 
     private YahooFinanceRetrofitService createYahooFinanceService(){
